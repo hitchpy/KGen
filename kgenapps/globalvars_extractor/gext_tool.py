@@ -53,12 +53,6 @@ class GExtTool(KGenTool):
         if not os.path.exists(Config.path['state']):
             os.makedirs(Config.path['state'])
 
-        # create kernel directories
-        if not os.path.exists(Config.path['kernel']):
-            os.makedirs(Config.path['kernel'])
-
-        os.system('rm -f %s/kgen_statefile.lst'%Config.path['kernel'])
-        os.system('rm -f %s/done.*'%Config.path['kernel'])
 
         preprocess()
         Logger.info('Pre-processing is done', stdout=True)
