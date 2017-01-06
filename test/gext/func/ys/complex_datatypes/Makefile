@@ -1,4 +1,4 @@
-FC := ifort
+FC := gfortran
 FC_FLAGS := ${FC_FLAGS}
 PRERUN := true
 
