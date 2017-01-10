@@ -71,21 +71,6 @@ class Gen_Type(Kgen_Plugin):
 
         pobj = gen_print_istrue(subrobj, var, 'var%%%s'%entity_name)
 
-        attrs = {'items': ['"Component variable: %s"'%entity_name]}
-        part_append_gensnode(subrobj, EXEC_PART, statements.Write, attrs=attrs)
-
-        attrs = {'items': ['"   used at %s"'%str(namelist)]}
-        part_append_gensnode(subrobj, EXEC_PART, statements.Write, attrs=attrs)
-
-
-        if hasattr(resstmt, 'name'):
-            resnamelist = [ a.name.lower() for a in resstmt.ancestors() ] + [ resstmt.name ]
-        else:
-            resnamelist = [ a.name.lower() for a in resstmt.ancestors() ]
-
-        attrs = {'items': ['"   declared at %s"'%str(resnamelist)]}
-        part_append_gensnode(subrobj, EXEC_PART, statements.Write, attrs=attrs)
-
         if resstmt.is_numeric() and var.is_array():
             attrs = {'items': ['"   REAL(SUM(%s), 8) = "'%entity_name, 'kgen_array_sum' ]}
         else:
@@ -96,19 +81,6 @@ class Gen_Type(Kgen_Plugin):
 
         entity_name = namelist[-1]
 
-        attrs = {'items': ['"Derivedtype variable: %s"'%entity_name]}
-        part_append_gensnode(subrobj, EXEC_PART, statements.Write, attrs=attrs)
-
-        attrs = {'items': ['"   used at %s"'%str(namelist)]}
-        part_append_gensnode(subrobj, EXEC_PART, statements.Write, attrs=attrs)
-
-        if hasattr(resstmt, 'name'):
-            resnamelist = [ a.name.lower() for a in resstmt.ancestors() ] + [ resstmt.name ]
-        else:
-            resnamelist = [ a.name.lower() for a in resstmt.ancestors() ]
-
-        attrs = {'items': ['"   declared at %s"'%str(resnamelist)]}
-        part_append_gensnode(subrobj, EXEC_PART, statements.Write, attrs=attrs)
 
         attrs = {'designator': callname, 'items': ['var%%%s'%entity_name]}
         part_append_gensnode(subrobj, EXEC_PART, statements.Call, attrs=attrs)

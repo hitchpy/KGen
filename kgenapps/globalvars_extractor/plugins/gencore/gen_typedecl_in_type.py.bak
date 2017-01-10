@@ -142,7 +142,7 @@ class Gen_Typedecl_In_Type(Kgen_Plugin):
                     part_append_gensnode(pobj, EXEC_PART, statements.Print, attrs=attrs)
      
     def create_subr_print_typedecl_in_type(self, node):
-
+        import pdb; pdb.set_trace()
         stmt = node.kgen_stmt
         parent = node.kgen_parent.kgen_parent
         entity_names = [ get_entity_name(decl) for decl in stmt.entity_decls ]

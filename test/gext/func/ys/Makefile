@@ -1,4 +1,4 @@
-KGEN_HOME := ${CCSI_DIR}/peiy/KGen
+KGEN_HOME := ${CCSI_DIR}/peiy/GlobalVar/KGen
 KGEN := ${KGEN_HOME}/bin/gext
 
 SRC_DIR := ${PWD}/complex_datatypes

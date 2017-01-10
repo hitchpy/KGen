@@ -29,16 +29,6 @@ class Gen_SubProgram_In_Module(Kgen_Plugin):
         namelist = list(namelist)
         resstmt = var.parent
 
-        attrs = {'items': ['"Global variable: %s"'%namelist[-1]]}
-        part_insert_gensnode(subpnode, EXEC_PART, statements.Write, attrs=attrs, index=0)
-
-        attrs = {'items': ['"   used at %s"'%str(namelist)]}
-        part_insert_gensnode(subpnode, EXEC_PART, statements.Write, attrs=attrs, index=1)
-
-        resnamelist = [ a.name.lower() for a in resstmt.ancestors() ]
-        attrs = {'items': ['"   declared at %s"'%str(resnamelist)]}
-        part_insert_gensnode(subpnode, EXEC_PART, statements.Write, attrs=attrs, index=2)
-
         if resstmt.is_numeric() and var.is_array():
             attrs = {'items': ['"   REAL(SUM(%s), 8) = "'%namelist[-1], 'REAL(SUM(%s), 8)'%namelist[-1] ]}
         else:
@@ -87,19 +77,6 @@ class Gen_SubProgram_In_Module(Kgen_Plugin):
 
         self.update_usestmt(subrname, orgstmt, resstmt.ancestors()[0])
 
-        attrs = {'items': ['"Global variable: %s"'%namelist[-1]]}
-        part_insert_gensnode(subpnode, EXEC_PART, statements.Write, attrs=attrs, index=0)
-
-        attrs = {'items': ['"   used at %s"'%str(namelist)]}
-        part_insert_gensnode(subpnode, EXEC_PART, statements.Write, attrs=attrs, index=1)
-
-        if hasattr(resstmt, 'name'):
-            resnamelist = [ a.name.lower() for a in resstmt.ancestors() ] + [ resstmt.name ]
-        else:
-            resnamelist = [ a.name.lower() for a in resstmt.ancestors() ]
-        attrs = {'items': ['"   declared at %s"'%str(resnamelist)]}
-        part_insert_gensnode(subpnode, EXEC_PART, statements.Write, attrs=attrs, index=2)
-
         attrs = {'designator': subrname, 'items': [var.name]}
         part_insert_gensnode(subpnode, EXEC_PART, statements.Call, attrs=attrs, index=3)
 
@@ -117,6 +94,7 @@ class Gen_SubProgram_In_Module(Kgen_Plugin):
 
             var = resstmt.get_variable(entity_name)
             subrname = get_typedecl_printname(resstmt, entity_name)
+            import pdb; pdb.set_trace()
             if var.is_array():
                 pass
                 if resstmt.is_derived() or is_class_derived:

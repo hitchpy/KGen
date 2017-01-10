@@ -60,11 +60,6 @@ class GExtTool(KGenTool):
         analyze()
         Logger.info('Program is analyzed', stdout=True)
 
-        # generate kgen_driver.f90 in kernel directory
-        self.driver = self.create_tree()
-        program = self.create_program(self.driver)
-        program.name = self.kernel_name
-        self.append_program_in_tree(self.driver, program)
 
         # init plugin framework
         init_plugins([KERNEL_ID_0])
