@@ -21,7 +21,7 @@ def create_print_subr(subrname, entity_name, parent, var, stmt, implicit=False):
             state_gencore_contains.append(parent)
 
         part_append_comment(parent, SUBP_PART, 'print state subroutine for %s'%subrname)
-        attrs = {'name': subrname, 'args': ['var']}
+        attrs = {'name': subrname, 'args': ['var', 'kgen_unit']}
         subrobj = part_append_gensnode(parent, SUBP_PART, block_statements.Subroutine, attrs=attrs)
         part_append_comment(parent, SUBP_PART, '')
 
@@ -35,7 +35,11 @@ def create_print_subr(subrname, entity_name, parent, var, stmt, implicit=False):
         if var.is_array(): attrspec.append('DIMENSION(%s)'% ','.join(':'*var.rank))
         attrs = {'type_spec': stmt.__class__.__name__.upper(), 'attrspec': attrspec, 'selector':stmt.selector, 'entity_decls': ['var']}
         part_append_gensnode(subrobj, DECL_PART, stmt.__class__, attrs=attrs)
-
+        
+        # Added for file descriptor
+        attrs = {'type_spec': 'INTEGER', 'attrspec': ['INTENT(IN)'], 'entity_decls': ['kgen_unit']}
+        part_append_gensnode(subrobj, DECL_PART, typedecl_statements.Integer, attrs=attrs) 
+        
         # kgen_istrue
         attrs = {'type_spec': 'LOGICAL', 'entity_decls': ['kgen_istrue']}
         part_append_gensnode(subrobj, DECL_PART, typedecl_statements.Logical, attrs=attrs)
@@ -84,7 +88,7 @@ def create_print_subr(subrname, entity_name, parent, var, stmt, implicit=False):
                         'ERROR: "%s" is not resolved. Call statements to print "%s" is not created here.'%\
                         (stmt.name, stmt.name))
                 else:
-                    attrs = {'designator': callname, 'items': ['var(%s)'%str_indexes]}
+                    attrs = {'designator': callname, 'items': ['var(%s)'%str_indexes, 'kgen_unit']}
                     part_append_gensnode(innerdo, EXEC_PART, statements.Call, attrs=attrs)
 
             else: # intrinsic type
@@ -108,7 +112,7 @@ def create_print_subr(subrname, entity_name, parent, var, stmt, implicit=False):
                         'ERROR: "%s" is not resolved. Call statements to print "%s" is not created here.'%\
                         (stmt.name, stmt.name))
                 else:
-                    attrs = {'designator': callname, 'items': ['var']}
+                    attrs = {'designator': callname, 'items': ['var', 'kgen_unit']}
                     part_append_gensnode(pobj, EXEC_PART, statements.Call, attrs=attrs)
             else: # intrinsic type
                 attrs = {'items': ['var'], 'format': '*'}

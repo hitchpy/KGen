@@ -69,12 +69,12 @@ class Gen_Type(Kgen_Plugin):
         entity_name = namelist[-1]
         resstmt = var.parent
 
-        pobj = gen_print_istrue(subrobj, var, 'var%%%s'%entity_name)
+        #pobj = gen_print_istrue(subrobj, var, 'var%%%s'%entity_name)
 
         if resstmt.is_numeric() and var.is_array():
             attrs = {'items': ['"   REAL(SUM(%s), 8) = "'%entity_name, 'kgen_array_sum' ]}
         else:
-            attrs = {'items': ['"   value = ", var%%%s'%entity_name]}
+            attrs = {'items': ['"   value = ", var%%%s'%entity_name],'specs':['UNIT=kgen_unit']}
         part_append_gensnode(subrobj, EXEC_PART, statements.Write, attrs=attrs)
 
     def create_print_call(self, subrobj, callname, namelist, stmt, resstmt):
@@ -82,10 +82,11 @@ class Gen_Type(Kgen_Plugin):
         entity_name = namelist[-1]
 
 
-        attrs = {'designator': callname, 'items': ['var%%%s'%entity_name]}
+        attrs = {'designator': callname, 'items': ['var%%%s'%entity_name, 'kgen_unit']}
         part_append_gensnode(subrobj, EXEC_PART, statements.Call, attrs=attrs)
 
     # process function
+    # Function to create the subroutine that will print out the global variables
     def create_dtype_print_subr(self, node):
         assert node.kgen_stmt, 'None kgen statement'
 
@@ -104,20 +105,25 @@ class Gen_Type(Kgen_Plugin):
                 state_gencore_contains.append(parent)
 
             part_append_comment(parent, SUBP_PART, 'read state subroutine for %s'%subrname)
-            attrs = {'prefix': 'RECURSIVE', 'name': subrname, 'args': ['var']}
+            attrs = {'prefix': 'RECURSIVE', 'name': subrname, 'args': ['var', 'kgen_unit']}
             subrobj = part_append_gensnode(parent, SUBP_PART, block_statements.Subroutine, attrs=attrs)
             part_append_comment(parent, SUBP_PART, '')
 
             # variable
             attrs = {'type_spec': 'TYPE', 'attrspec': ['INTENT(IN)'], 'selector':(None, node.name), 'entity_decls': ['var']}
             part_append_gensnode(subrobj, DECL_PART, typedecl_statements.Type, attrs=attrs)
-
+            
+            # file descriptor variable
+            attrs = {'type_spec': 'INTEGER', 'attrspec': ['INTENT(IN)'], 'entity_decls': ['kgen_unit']}
+            part_append_gensnode(subrobj, DECL_PART, typedecl_statements.Integer, attrs=attrs)
+            
             # kgen_istrue
             attrs = {'type_spec': 'LOGICAL', 'entity_decls': ['kgen_istrue']}
             part_append_gensnode(subrobj, DECL_PART, typedecl_statements.Logical, attrs=attrs)
 
             attrs = {'type_spec': 'REAL', 'entity_decls': ['kgen_array_sum'], 'selector': (None, '8')}
             part_append_gensnode(subrobj, DECL_PART, typedecl_statements.Real, attrs=attrs)
+            
 
             part_append_comment(subrobj, DECL_PART, '')
 
@@ -178,7 +184,7 @@ class Gen_Type(Kgen_Plugin):
                             self.create_print_intrinsic(subrobj, namelist, stmt, var)
 
                 part_append_comment(subrobj, EXEC_PART, '')
-
+            
             # create public stmt
             if parent.kgen_match_class in [ block_statements.Program, block_statements.Module ]:
                 attrs = {'items': [subrname]}

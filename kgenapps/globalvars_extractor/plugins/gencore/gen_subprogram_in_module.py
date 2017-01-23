@@ -77,13 +77,21 @@ class Gen_SubProgram_In_Module(Kgen_Plugin):
 
         self.update_usestmt(subrname, orgstmt, resstmt.ancestors()[0])
 
-        attrs = {'designator': subrname, 'items': [var.name]}
+        attrs = {'designator': subrname, 'items': [var.name, 'kgen_unit']}
         part_insert_gensnode(subpnode, EXEC_PART, statements.Call, attrs=attrs, index=3)
 
 
     def create_globalvar_status(self, node):
         node.kgen_stmt.top.used4genstate = True
-
+         # add kgen_unit for file opening
+        attrs = {'type_spec': 'INTEGER', 'attrspec': ['SAVE'], 'entity_decls': ['kgen_unit']}
+        part_append_gensnode(node, DECL_PART, typedecl_statements.Integer, attrs=attrs)
+       
+        #opening the file for writing
+        attrs = {'specs': ['NEWUNIT=kgen_unit', 'FILE="test.txt"', \
+                    'STATUS="OLD"', 'ACCESS="STREAM"', 'FORM="UNFORMATTED"', 'ACTION="WRITE"', 'CONVERT="BIG_ENDIAN"']}
+        part_append_gensnode(node, DECL_PART, statements.Open, attrs=attrs)         
+ 
         for namelist, res in node.kgen_stmt.globalvars.items():
             entity_name = namelist[-1]
             orgstmt = res[0]
@@ -94,7 +102,7 @@ class Gen_SubProgram_In_Module(Kgen_Plugin):
 
             var = resstmt.get_variable(entity_name)
             subrname = get_typedecl_printname(resstmt, entity_name)
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
             if var.is_array():
                 pass
                 if resstmt.is_derived() or is_class_derived:
@@ -138,3 +146,6 @@ class Gen_SubProgram_In_Module(Kgen_Plugin):
                             self.create_print_call(namelist, subrname, node, res, var)
                 else: # intrinsic type
                     self.create_print_intrinsic(namelist, node, var)
+        #closing the file
+        attrs = {'specs': [ 'UNIT=kgen_unit' ]}
+        part_append_gensnode(node, EXEC_PART, statements.Close, attrs=attrs)
